@@ -1,0 +1,168 @@
+﻿@model DataModel.EmployeeModel
+@using Kendo.Mvc.UI
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<head>
+    <script src="~/Scripts/kendo/2018.3.911/jquery.min.js"></script>
+    <script src="~/Scripts/kendo/2018.3.911/angular.min.js"></script>
+    <link href="~/Content/kendo/2018.3.911/kendo.common.min.css" rel="stylesheet" />
+    <link href="~/Content/kendo/2018.3.911/kendo.default.min.css" rel="stylesheet" />
+    <script src="~/Scripts/kendo/2018.3.911/kendo.all.min.js"></script>
+    <script src="~/Scripts/employeeScript.js"></script>
+</head>
+
+@Html.ValidationMessageFor(model => model.Name)
+
+<div @*ng-app="myApp" ng-controller="myCtrl" ng-init="GetAll()"*@ class="divList">
+
+      @(Html.Kendo().Grid<DataModel.EmployeeModel>()
+        .Name("grid")
+        .Columns(columns =>
+        {
+            columns.Bound(c => c.Name);
+            columns.Bound(c => c.Salary);
+            columns.Command(command => { command.Edit(); command.Destroy(); }).Width(200);
+
+        })
+        .ToolBar(commands => commands.Create())
+        .Editable(editable => editable.Mode(GridEditMode.PopUp))
+        .HtmlAttributes(new { style = "height: 300px;" })
+        .Scrollable()
+        .Groupable()
+        .Sortable()
+        .Filterable()
+        .Pageable(pageable => pageable
+            .Refresh(true)
+            .PageSizes(true)
+            .ButtonCount(5))
+            .DataSource(
+            dataSource => dataSource.Ajax()
+            .Model(model=> {
+                model.Id(m => m.Id);
+                model.Field(m => m.Id).Editable(false);
+            })
+            .Read(read => read.Action("GetAll", "Employee"))
+            .Create(create => create.Action("Create", "Employee"))
+            .Update(update => update.Action("Edit", "Employee"))
+            .Destroy(destroy => destroy.Action("Delete", "Employee"))
+            .PageSize(5)
+            .ServerOperation(true)
+
+        )
+    .Events(e => e.Edit("onEdit"))
+    
+
+    )
+    <div id="employeesGrid"></div>
+
+    Salary:
+    <input type="number" value="Salary" name="salary"/>
+    <a class="button btn-primary" href="/Employee/GenerateReport/">Generate Report</a>
+
+
+
+    <br />
+
+</div>
+<script type="text/javascript">
+
+    function onEdit(e) {
+        $('[name="Id"]').attr("readonly", true);
+    }
+
+</script>
+
+
+@*<script>
+    $(document).ready(function () {
+        dataSource = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: "/Employee/GetAll",
+                    dataType: "jsonp"
+                },
+                update: {
+                    url:"/Employee/Edit",
+                    dataType: "jsonp"
+                },
+                destroy: {
+                    url: "/Employee/Delete",
+                    dataType: "jsonp"
+                },
+                create: {
+                    url: "/Employee/Create",
+                    dataType: "jsonp"
+                },
+                parameterMap: function (options, operation) {
+                    if (operation !== "read" && options.models) {
+                        return { models: kendo.stringify(options.models) };
+                    }
+                }
+            },
+            batch: true,
+            pageSize: 20,
+            schema: {
+                model: {
+                    Id: "Id",
+                    fields: {
+                        Id: { editable: false, nullable: true },
+                        Name: { validation: { required: true } },
+                        Salary: { type: "number", validation: { required: true, min: 1 } }
+                    }
+                }
+            }
+        });
+        $("#employeesGrid").kendoGrid({
+            dataSource: dataSource,
+            pageable: true,
+            height: 550,
+            toolbar: ["create"],
+            columns: [
+                { field: "Name", title: "Name" },
+                { field: "Salary", title: "Salary", format: "{0:c}", width: "120px" },
+                { command: ["edit", "destroy"], title: "&nbsp;", width: "250px" }],
+            editable: "popup"
+        });
+    });
+</script>*@
+
+
+<script>
+    $(function () {
+        console.log("hiii");
+        //$("#employeesGrid").kendoGrid({
+        //    dataSource: {
+        //        transport: {
+        //            read: "/Employee/GetAll",
+        //            dataType:"json"
+        //        }
+        //    },
+        //});
+
+
+
+        $('.createModal').on("click", function (e) {
+            e.preventDefault();
+            //perform the url load  then
+            $('#myModal').modal({
+                keyboard: true
+            }, 'show');
+            return false;
+        })
+    })
+</script>
+<script>
+    $(document).ready(function () {
+        $('#meeting-cat').dataTable({
+            searching: false,
+            bLengthChange: false,
+            "aoColumnDefs": [
+                { 'bSortable': false, 'aTargets': [-1, -2] }
+            ]
+        });
+    });</script>
+
+
